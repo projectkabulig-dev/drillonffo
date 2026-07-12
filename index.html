@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilang Islands — Math Drill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep:#0F1533;
+    --deep2:#241259;
+    --purple-end:#5B1F6B;
+    --coral:#FFC93C;
+    --coral-dark:#E8AA12;
+    --sand:#FBEBC8;
+    --foam:#EAF7F5;
+    --teal:#2FD1C3;
+    --teal-dark:#16948A;
+    --ink:#12173A;
+    --white:#ffffff;
+    --shadow: 0 18px 40px rgba(10,10,30,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(255,255,255,0.07), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(47,209,195,0.20), transparent 45%),
+      linear-gradient(135deg, var(--deep) 0%, var(--deep2) 55%, var(--purple-end) 100%);
+    color:var(--white);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* drifting island silhouettes for ambient texture */
+  .bg-wave{
+    position:fixed; left:0; right:0; bottom:0; height:160px;
+    background:
+      radial-gradient(ellipse 60% 100% at 20% 100%, rgba(47,209,195,0.30), transparent 60%),
+      radial-gradient(ellipse 50% 100% at 80% 100%, rgba(255,201,60,0.16), transparent 60%);
+    pointer-events:none; z-index:0;
+  }
+
+  header{
+    position:relative; z-index:2;
+    padding:28px clamp(16px,4vw,48px) 6px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand .mark{
+    width:46px;height:46px;border-radius:14px;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22px; color:var(--ink);
+    box-shadow:0 8px 18px rgba(47,209,195,0.35);
+    transform:rotate(-6deg);
+  }
+  .brand h1{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:clamp(20px,3vw,28px);
+    margin:0; letter-spacing:0.3px;
+  }
+  .brand p{margin:2px 0 0; font-size:12.5px; color:#8FE9DD; letter-spacing:.4px; text-transform:uppercase;}
+
+  .badge{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.18); padding:8px 14px; border-radius:999px; color:#DCEEEA;
+  }
+
+  main{position:relative; z-index:2; max-width:920px; margin:0 auto; padding:10px clamp(16px,4vw,48px) 60px;}
+
+  /* ---- LANDING PAGE ---- */
+  .landing{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:10px;
+    min-height:min(72vh,620px);
+    padding:20px 10px;
+  }
+  .landing-badge{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:2px; text-transform:uppercase;
+    background:rgba(47,209,195,0.14); color:#8FE9DD;
+    border:1px solid rgba(47,209,195,0.35); padding:7px 16px; border-radius:999px;
+    margin-bottom:10px;
+  }
+  .landing-title{
+    font-family:'Baloo 2',sans-serif; font-weight:800; letter-spacing:.3px;
+    font-size:clamp(28px,5.5vw,48px); line-height:1.15; margin:0;
+  }
+  .landing-sub{
+    font-size:clamp(14px,2.2vw,17px); color:#BFE3DC; margin:6px 0 30px; letter-spacing:.3px;
+  }
+  .landing-icon-btn{
+    width:clamp(110px,18vw,150px); height:clamp(110px,18vw,150px);
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+    border:6px solid rgba(255,255,255,0.35);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow:0 16px 34px rgba(47,209,195,0.4);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .landing-icon-btn:hover{transform:translateY(-3px) scale(1.03); box-shadow:0 20px 40px rgba(47,209,195,0.5);}
+  .landing-icon-btn:active{transform:translateY(0) scale(0.97);}
+  .landing-icon-symbol{
+    font-size:clamp(38px,6vw,54px); color:var(--ink); margin-left:6px;
+  }
+  .landing-tap-label{
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px;
+    color:#8FE9DD; margin-top:14px; letter-spacing:.4px; text-transform:uppercase;
+  }
+  .landing-credit{
+    font-size:12px; color:rgba(255,255,255,0.4); margin-top:44px; letter-spacing:.3px;
+  }
+
+  /* ---- SETTINGS PANEL ---- */
+  .panel{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    backdrop-filter:blur(6px);
+    border-radius:22px;
+    padding:clamp(18px,3vw,28px);
+    margin-top:18px;
+    box-shadow: var(--shadow);
+  }
+  .panel h2{
+    font-family:'Baloo 2',sans-serif; font-size:18px; margin:0 0 4px; color:var(--sand);
+  }
+  .panel .sub{font-size:13px; color:#BFE3DC; margin:0 0 18px;}
+
+  .group{margin-bottom:20px;}
+  .group-label{
+    font-size:12.5px; text-transform:uppercase; letter-spacing:1px; color:#9FD0C8; margin-bottom:10px; font-weight:600;
+  }
+  .chips{display:flex; flex-wrap:wrap; gap:10px;}
+  .chip{
+    cursor:pointer; user-select:none;
+    padding:10px 16px; border-radius:14px;
+    background:rgba(255,255,255,0.07);
+    border:1.5px solid rgba(255,255,255,0.22);
+    font-weight:600; font-size:14px;
+    display:flex; align-items:center; gap:8px;
+    transition:all .18s ease;
+  }
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.4);transition:.18s;}
+  .chip.active{
+    background:linear-gradient(135deg,var(--coral),var(--coral-dark));
+    border-color:transparent; box-shadow:0 8px 16px rgba(255,201,60,0.3);
+    color:var(--ink);
+  }
+  .chip.active .dot{background:var(--ink);}
+  .chip.radio.active{
+    background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+    box-shadow:0 8px 16px rgba(47,209,195,0.3);
+    color:white;
+  }
+
+  .row-inline{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .timer-input{
+    display:flex; align-items:center; background:rgba(255,255,255,0.07);
+    border:1.5px solid rgba(255,255,255,0.22); border-radius:14px; overflow:hidden;
+  }
+  .timer-input button{
+    background:transparent; border:none; color:white; font-size:18px; width:40px; height:44px; cursor:pointer;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .timer-input button:hover{background:rgba(255,255,255,0.1);}
+  .timer-input span{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; min-width:56px; text-align:center;
+  }
+
+  .start-btn{
+    margin-top:6px;
+    background:linear-gradient(135deg,var(--coral),var(--coral-dark));
+    border:none; color:var(--ink); font-family:'Baloo 2',sans-serif; font-weight:800; font-size:18px;
+    padding:15px 34px; border-radius:999px; cursor:pointer;
+    box-shadow:0 12px 24px rgba(255,201,60,0.35);
+    transition:transform .15s ease;
+  }
+  .start-btn:hover{transform:translateY(-2px);}
+  .start-btn:disabled{opacity:0.4; cursor:not-allowed; transform:none;}
+  .warn{color:#FFB4A2; font-size:13px; margin-top:8px; min-height:16px;}
+
+  /* ---- DRILL SCREEN ---- */
+  .drill{display:none;}
+  .drill.active{display:block;}
+  .panel.active-only{display:none;}
+  .top-status{
+    display:flex; justify-content:space-between; align-items:center; margin:22px 0 6px; flex-wrap:wrap; gap:10px;
+  }
+  .pill{
+    font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(255,255,255,0.08);
+    padding:7px 14px; border-radius:999px; border:1px solid rgba(255,255,255,0.16);
+  }
+  .back-btn{
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px;
+    background:rgba(255,255,255,0.08); color:#DCEEEA;
+    border:1.5px solid rgba(255,255,255,0.22); border-radius:999px;
+    padding:8px 16px; cursor:pointer; transition:all .15s ease;
+  }
+  .back-btn:hover{background:rgba(255,255,255,0.16); transform:translateX(-2px);}
+  .progress-track{
+    height:6px; background:rgba(255,255,255,0.12); border-radius:99px; overflow:hidden; margin:10px 0 30px;
+  }
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--teal),var(--coral)); transition:width .4s ease;}
+
+  .stage{display:flex; flex-direction:column; align-items:center; gap:26px;}
+
+  .ring-wrap{position:relative; width:132px; height:132px;}
+  .ring-wrap svg{transform:rotate(-90deg); width:132px; height:132px;}
+  .ring-bg{fill:none; stroke:rgba(255,255,255,0.14); stroke-width:8;}
+  .ring-fg{fill:none; stroke:var(--coral); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1s linear;}
+  .ring-num{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:34px; font-weight:700;
+  }
+
+  .card{
+    width:min(760px,100%);
+    background:linear-gradient(160deg, var(--sand), #F6DFA9);
+    border-radius:28px;
+    padding:clamp(36px,7vw,64px) 20px;
+    box-shadow: var(--shadow);
+    text-align:center;
+    position:relative;
+    color:var(--ink);
+    min-height:260px;
+    display:flex; align-items:center; justify-content:center;
+    border:6px solid rgba(255,255,255,0.5);
+  }
+  .card .op-label{
+    position:absolute; top:16px; left:22px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:1px; text-transform:uppercase;
+    color:#8A6A2F; font-weight:700;
+  }
+  .problem{
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:clamp(90px,20vw,190px);
+    letter-spacing:1px;
+    display:flex; align-items:baseline; justify-content:center; gap:26px; flex-wrap:wrap;
+  }
+  .problem .sym{color:var(--coral-dark);}
+  @keyframes pop{from{transform:scale(0.8); opacity:0;} to{transform:scale(1); opacity:1;}}
+
+  /* ---- ANSWER PAGE: separate full-screen view, big numbers for back-of-room viewing ---- */
+  .answer-page{
+    display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:10px;
+    width:100%;
+    min-height:min(60vh,520px);
+    background:linear-gradient(135deg, var(--deep) 0%, var(--deep2) 55%, var(--purple-end) 100%);
+    border-radius:28px;
+    padding:clamp(30px,6vw,56px) 20px;
+    box-shadow: var(--shadow);
+    text-align:center;
+    color:white;
+    border:6px solid rgba(47,209,195,0.35);
+    position:relative;
+    overflow:hidden;
+  }
+  .answer-page.show{display:flex; animation:pop .35s ease;}
+  .answer-op-label{
+    font-family:'JetBrains Mono',monospace; font-size:14px; letter-spacing:2px; text-transform:uppercase;
+    color:#8FE9DD; font-weight:700; opacity:.9;
+  }
+  .answer-equation{
+    font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:clamp(24px,4.5vw,38px);
+    color:white; letter-spacing:.5px;
+  }
+  .answer-big{
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:clamp(90px,22vw,220px);
+    line-height:1;
+    color:var(--coral);
+    text-shadow:0 10px 30px rgba(255,201,60,0.35);
+  }
+  .auto-next{
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:14px;
+    color:#8FE9DD; opacity:0; margin-top:14px; letter-spacing:.3px;
+    transition:opacity .3s ease;
+  }
+  .auto-next.show{opacity:0.9;}
+  .next-now-btn{
+    margin-top:6px;
+    background:rgba(255,255,255,0.16); color:white; border:1.5px solid rgba(255,255,255,0.4);
+  }
+
+  .controls{display:flex; gap:14px; flex-wrap:wrap; justify-content:center;}
+  .btn{
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:14.5px;
+    padding:13px 22px; border-radius:14px; cursor:pointer; border:none;
+    display:flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--coral),var(--coral-dark)); color:var(--ink); font-weight:700; box-shadow:0 10px 20px rgba(255,201,60,0.3);}
+  .btn-ghost{background:rgba(255,255,255,0.08); color:white; border:1.5px solid rgba(255,255,255,0.22);}
+  .btn:disabled{opacity:0.35; cursor:not-allowed;}
+  .btn:hover:not(:disabled){filter:brightness(1.08);}
+
+  /* set-complete modal */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(6,27,38,0.72); z-index:10;
+    align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(3px);
+  }
+  .modal-overlay.show{display:flex;}
+  .modal{
+    background:linear-gradient(160deg,var(--deep2),var(--deep)); border:1px solid rgba(255,255,255,0.18);
+    border-radius:24px; padding:36px 30px; max-width:420px; width:100%; text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,0.4);
+  }
+  .modal .wave-icon{font-size:38px; margin-bottom:6px;}
+  .modal h3{font-family:'Baloo 2',sans-serif; font-size:22px; margin:0 0 6px;}
+  .modal p{font-size:14px; color:#BFE3DC; margin:0 0 24px; line-height:1.5;}
+  .modal .mbtns{display:flex; flex-direction:column; gap:12px;}
+
+  footer{
+    position:relative; z-index:2; text-align:center; font-size:12px; color:rgba(255,255,255,0.35);
+    padding:10px 0 30px;
+  }
+
+  @media (max-width:520px){
+    .problem{font-size:clamp(48px,15vw,72px); gap:14px;}
+    .chips{gap:8px;}
+    .chip{padding:9px 13px; font-size:13px;}
+  }
+</style>
+</head>
+<body>
+<div class="bg-wave"></div>
+
+<header>
+  <div class="brand">
+    <div class="mark">÷</div>
+    <div>
+      <h1>Bilang Islands</h1>
+      <p>Project KABULIG · Math Fact Drill</p>
+    </div>
+  </div>
+  <div class="badge" id="headerStatus">Handa na</div>
+</header>
+
+<main>
+
+  <!-- ===== LANDING PAGE ===== -->
+  <section class="landing" id="landingPage">
+    <div class="landing-badge">Project KABULIG</div>
+    <h1 class="landing-title">Welcome to the Drill on the<br>Four Basic Operations</h1>
+    <p class="landing-sub">Addition · Subtraction · Multiplication · Division</p>
+
+    <button class="landing-icon-btn" id="landingStartBtn" aria-label="Simulan ang drill" title="I-tap para magsimula">
+      <span class="landing-icon-symbol">▶</span>
+    </button>
+    <div class="landing-tap-label">I-tap para magsimula</div>
+
+    <div class="landing-credit">Bilang Islands · Project KABULIG &nbsp;|&nbsp; Developed by Sir Dyon</div>
+  </section>
+
+  <!-- ===== SETTINGS PANEL ===== -->
+  <section class="panel" id="settingsPanel" style="display:none;">
+    <h2>Itakda ang Drill</h2>
+    <p class="sub">Piliin ang operasyon, antas ng bilang, at oras bawat tanong. 10 item kada set.</p>
+
+    <div class="group">
+      <div class="group-label">Operasyon (pwedeng higit sa isa)</div>
+      <div class="chips" id="opChips">
+        <div class="chip active" data-op="add"><span class="dot"></span>Addition (+)</div>
+        <div class="chip" data-op="sub"><span class="dot"></span>Subtraction (−)</div>
+        <div class="chip" data-op="mul"><span class="dot"></span>Multiplication (×)</div>
+        <div class="chip" data-op="div"><span class="dot"></span>Division (÷)</div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">Digit Combination (antas)</div>
+      <div class="chips" id="digitChips">
+        <div class="chip radio active" data-digit="1x1">1-digit × 1-digit</div>
+        <div class="chip radio" data-digit="2x1">2-digit × 1-digit</div>
+        <div class="chip radio" data-digit="2x2">2-digit × 2-digit</div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-label">Oras kada item</div>
+      <div class="row-inline">
+        <div class="timer-input">
+          <button id="timerMinus">−</button>
+          <span id="timerVal">30s</span>
+          <button id="timerPlus">+</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn">Simulan ang Set 1 ▸</button>
+    <div class="warn" id="warnMsg"></div>
+  </section>
+
+  <!-- ===== DRILL SCREEN ===== -->
+  <section class="drill" id="drillScreen">
+    <div class="top-status">
+      <button class="back-btn" id="backBtn">◂ Bumalik sa Setting</button>
+      <div class="pill" id="setLabel">Set 1 · Level 1x1</div>
+      <div class="pill" id="itemLabel">Item 1 / 10</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="stage" id="stageView">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 132 132">
+          <circle class="ring-bg" cx="66" cy="66" r="58"></circle>
+          <circle class="ring-fg" id="ringFg" cx="66" cy="66" r="58"></circle>
+        </svg>
+        <div class="ring-num" id="ringNum">30</div>
+      </div>
+
+      <div class="card">
+        <div class="op-label" id="opLabel">Addition</div>
+        <div>
+          <div class="problem" id="problemText">— — —</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-ghost" id="revealBtn">Ipakita na ang sagot</button>
+        <button class="btn btn-ghost" id="pauseBtn">Pause</button>
+      </div>
+    </div>
+
+    <!-- ===== ANSWER PAGE (full screen, big numbers for classroom viewing) ===== -->
+    <div class="answer-page" id="answerPage">
+      <div class="answer-op-label" id="answerOpLabel">Addition</div>
+      <div class="answer-equation" id="answerEquation">— — —</div>
+      <div class="answer-big" id="answerBig">?</div>
+      <div class="auto-next" id="autoNextMsg">Susunod na tanong...</div>
+      <button class="btn btn-ghost next-now-btn" id="nextBtn">Susunod na ▸</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>Bilang Islands · Project KABULIG &nbsp;|&nbsp; Developed by Sir Dyon</footer>
+
+<div class="modal-overlay" id="setCompleteModal">
+  <div class="modal">
+    <div class="wave-icon">🌊</div>
+    <h3>Tapos na ang Set!</h3>
+    <p id="modalSummary">Natapos ang 10 item sa antas na ito. Ano ang susunod na gagawin?</p>
+    <div class="mbtns">
+      <button class="btn btn-primary" id="anotherSetBtn">Ulitin ang Set (parehong antas)</button>
+      <button class="btn btn-ghost" id="nextLevelBtn">Sumunod na Antas</button>
+      <button class="btn btn-ghost" id="endBtn">Tapusin ang Drill</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ===== Google Apps Script Web App URL for click logging =====
+  // Palitan ito ng URL ng na-deploy mong Apps Script Web App (tingnan ang instructions
+  // na ibinigay kasama ng file na ito). Hangga't hindi napalitan, hindi magpapadala ang app.
+  const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbztU52Io91iKNptXP2ds_qu8MRH_08tk-n0gr3RlMhHCo4rjRSQROvScAvNqWqgI8by4A/exec';
+
+  function logAppOpen(){
+    if(!GAS_WEB_APP_URL || GAS_WEB_APP_URL.indexOf('PASTE_') === 0) return;
+    try{
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors', // kailangan ito dahil ibang domain ang GitHub Pages vs script.google.com
+        body: JSON.stringify({
+          event: 'app_open',
+          app: 'Bilang Islands',
+          timestamp: new Date().toISOString()
+        })
+      }).catch(()=>{ /* fire-and-forget: huwag hayaang harangan ng logging ang drill */ });
+    }catch(err){ /* silently ignore */ }
+  }
+
+  const landingPage = document.getElementById('landingPage');
+  const landingStartBtn = document.getElementById('landingStartBtn');
+
+  const opChips = document.querySelectorAll('#opChips .chip');
+  const digitChips = document.querySelectorAll('#digitChips .chip');
+  const timerVal = document.getElementById('timerVal');
+  const timerMinus = document.getElementById('timerMinus');
+  const timerPlus = document.getElementById('timerPlus');
+  const startBtn = document.getElementById('startBtn');
+  const warnMsg = document.getElementById('warnMsg');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const drillScreen = document.getElementById('drillScreen');
+  const headerStatus = document.getElementById('headerStatus');
+  const backBtn = document.getElementById('backBtn');
+
+  const setLabel = document.getElementById('setLabel');
+  const itemLabel = document.getElementById('itemLabel');
+  const progressFill = document.getElementById('progressFill');
+  const opLabel = document.getElementById('opLabel');
+  const problemText = document.getElementById('problemText');
+  const stageView = document.getElementById('stageView');
+  const answerPage = document.getElementById('answerPage');
+  const answerOpLabel = document.getElementById('answerOpLabel');
+  const answerEquation = document.getElementById('answerEquation');
+  const answerBig = document.getElementById('answerBig');
+  const ringFg = document.getElementById('ringFg');
+  const ringNum = document.getElementById('ringNum');
+  const revealBtn = document.getElementById('revealBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const autoNextMsg = document.getElementById('autoNextMsg');
+
+  const modal = document.getElementById('setCompleteModal');
+  const modalSummary = document.getElementById('modalSummary');
+  const anotherSetBtn = document.getElementById('anotherSetBtn');
+  const nextLevelBtn = document.getElementById('nextLevelBtn');
+  const endBtn = document.getElementById('endBtn');
+
+  const RADIUS = 58;
+  const CIRC = 2 * Math.PI * RADIUS;
+  ringFg.style.strokeDasharray = CIRC;
+  ringFg.style.strokeDashoffset = 0;
+
+  let selectedOps = ['add'];
+  let selectedDigit = '1x1';
+  let timerSeconds = 30;
+
+  const digitOrder = ['1x1','2x1','2x2'];
+  const digitLabels = {'1x1':'1-digit × 1-digit','2x1':'2-digit × 1-digit','2x2':'2-digit × 2-digit'};
+  const opNames = {add:'Addition', sub:'Subtraction', mul:'Multiplication', div:'Division'};
+  const opSymbols = {add:'+', sub:'−', mul:'×', div:'÷'};
+
+  opChips.forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const op = chip.dataset.op;
+      if(chip.classList.contains('active')){
+        if(selectedOps.length === 1){ return; } // keep at least one selected
+        chip.classList.remove('active');
+        selectedOps = selectedOps.filter(o=>o!==op);
+      } else {
+        chip.classList.add('active');
+        selectedOps.push(op);
+      }
+      warnMsg.textContent = '';
+    });
+  });
+
+  digitChips.forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      digitChips.forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedDigit = chip.dataset.digit;
+    });
+  });
+
+  timerMinus.addEventListener('click', ()=>{
+    timerSeconds = Math.max(5, timerSeconds - 5);
+    timerVal.textContent = timerSeconds + 's';
+  });
+  timerPlus.addEventListener('click', ()=>{
+    timerSeconds = Math.min(120, timerSeconds + 5);
+    timerVal.textContent = timerSeconds + 's';
+  });
+
+  // ---- number generation ----
+  function randRange(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function digitRange(kind){
+    // returns [min,max] for a 1 or 2 digit operand
+    return kind === 1 ? [1,9] : [10,99];
+  }
+
+  function genOperands(op, digitCombo){
+    // digitCombo like '2x1' => first operand digits=2, second digits=1
+    const parts = digitCombo.split('x').map(n=>parseInt(n,10));
+    const d1 = parts[0], d2 = parts[1];
+    const [minA,maxA] = digitRange(d1);
+    const [minB,maxB] = digitRange(d2);
+
+    if(op === 'add'){
+      const a = randRange(minA,maxA);
+      const b = randRange(minB,maxB);
+      return {a, b, answer: a+b};
+    }
+    if(op === 'sub'){
+      let a = randRange(minA,maxA);
+      let b = randRange(minB,maxB);
+      if(b > a){ const t=a; a=b; b=t; } // ensure non-negative result
+      // if swap made 'a' outside its intended larger range that's fine, still valid digits
+      return {a, b, answer: a-b};
+    }
+    if(op === 'mul'){
+      const a = randRange(minA,maxA);
+      const b = randRange(minB,maxB);
+      return {a, b, answer: a*b};
+    }
+    if(op === 'div'){
+      // build so it divides evenly: quotient has digits like second operand size,
+      // divisor has digits like... simplest: pick divisor (d2 size) and quotient (d1 size), dividend = divisor*quotient
+      const divisor = randRange(minB,maxB) || 1;
+      const quotient = randRange(minA,maxA) || 1;
+      const dividend = divisor * quotient;
+      return {a: dividend, b: divisor, answer: quotient};
+    }
+  }
+
+  // ---- drill state ----
+  let currentSet = 1;
+  let currentDigitLevel = '1x1';
+  let itemIndex = 0; // 0-based, 0..9
+  const ITEMS_PER_SET = 10;
+  let timerHandle = null;
+  let autoAdvanceHandle = null;
+  let remaining = 0;
+  let paused = false;
+  let currentProblem = null;
+  let currentSetProblems = [];
+  const AUTO_ADVANCE_MS = 2500;
+
+  function updateHeaderStatus(text){ headerStatus.textContent = text; }
+
+  function pickOp(){
+    return selectedOps[randRange(0, selectedOps.length-1)];
+  }
+
+  // Bumuo ng buong set ng ITEMS_PER_SET na problema nang paunti-unti,
+  // iniiwasan ang eksaktong paulit-ulit na tanong (parehong operasyon + parehong numero) sa loob ng isang set.
+  function buildSetProblems(){
+    const problems = [];
+    const seen = new Set();
+    let guard = 0;
+    while(problems.length < ITEMS_PER_SET && guard < 500){
+      guard++;
+      const op = pickOp();
+      const p = genOperands(op, currentDigitLevel);
+      const key = op + ':' + p.a + ':' + p.b;
+      if(seen.has(key)) continue;
+      seen.add(key);
+      problems.push({op, a:p.a, b:p.b, answer:p.answer});
+    }
+    // fallback: kung limitado ang posibleng kombinasyon (mababang antas), payagan na ang duplicate
+    // para makumpleto pa rin ang 10 items
+    while(problems.length < ITEMS_PER_SET){
+      const op = pickOp();
+      const p = genOperands(op, currentDigitLevel);
+      problems.push({op, a:p.a, b:p.b, answer:p.answer});
+    }
+    return problems;
+  }
+
+  function startDrillFlow(){
+    if(selectedOps.length === 0){
+      warnMsg.textContent = 'Pumili ng kahit isang operasyon.';
+      return;
+    }
+    currentDigitLevel = selectedDigit;
+    currentSet = 1;
+    itemIndex = 0;
+    currentSetProblems = buildSetProblems();
+    settingsPanel.style.display = 'none';
+    drillScreen.classList.add('active');
+    updateHeaderStatus('Ongoing drill');
+    loadItem();
+  }
+
+  let currentOp = 'add';
+
+  function showStage(){
+    answerPage.classList.remove('show');
+    autoNextMsg.classList.remove('show');
+    stageView.style.display = 'flex';
+  }
+
+  function showAnswerPage(){
+    stageView.style.display = 'none';
+    answerOpLabel.textContent = opNames[currentOp];
+    answerEquation.innerHTML = `${currentProblem.a} <span class="sym">${opSymbols[currentOp]}</span> ${currentProblem.b} =`;
+    answerBig.textContent = currentProblem.answer;
+    answerPage.classList.add('show');
+  }
+
+  function loadItem(){
+    clearInterval(timerHandle);
+    clearTimeout(autoAdvanceHandle);
+    paused = false;
+    pauseBtn.textContent = 'Pause';
+    showStage();
+    revealBtn.disabled = false;
+
+    const problem = currentSetProblems[itemIndex];
+    currentOp = problem.op;
+    currentProblem = problem;
+    opLabel.textContent = opNames[currentOp];
+    problemText.innerHTML = `${currentProblem.a} <span class="sym">${opSymbols[currentOp]}</span> ${currentProblem.b}`;
+
+    setLabel.textContent = `Set ${currentSet} · Level ${currentDigitLevel}`;
+    itemLabel.textContent = `Item ${itemIndex+1} / ${ITEMS_PER_SET}`;
+    progressFill.style.width = ((itemIndex)/ITEMS_PER_SET*100) + '%';
+
+    remaining = timerSeconds;
+    ringNum.textContent = remaining;
+    ringFg.style.strokeDashoffset = 0;
+    startTimer();
+  }
+
+  function startTimer(){
+    clearInterval(timerHandle);
+    timerHandle = setInterval(()=>{
+      if(paused) return;
+      remaining -= 1;
+      ringNum.textContent = Math.max(remaining,0);
+      const frac = Math.max(remaining,0)/timerSeconds;
+      ringFg.style.strokeDashoffset = CIRC * (1-frac);
+      if(remaining <= 0){
+        clearInterval(timerHandle);
+        revealAnswer();
+      }
+    }, 1000);
+  }
+
+  function revealAnswer(){
+    clearInterval(timerHandle);
+    showAnswerPage();
+    revealBtn.disabled = true;
+    autoNextMsg.classList.add('show');
+
+    // Auto-advance to the next item after a short pause — no click needed
+    clearTimeout(autoAdvanceHandle);
+    autoAdvanceHandle = setTimeout(()=>{ goToNextItem(); }, AUTO_ADVANCE_MS);
+  }
+
+  function goToNextItem(){
+    clearTimeout(autoAdvanceHandle);
+    itemIndex += 1;
+    if(itemIndex >= ITEMS_PER_SET){
+      progressFill.style.width = '100%';
+      showSetComplete();
+    } else {
+      loadItem();
+    }
+  }
+
+  revealBtn.addEventListener('click', revealAnswer);
+
+  pauseBtn.addEventListener('click', ()=>{
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Ipagpatuloy' : 'Pause';
+  });
+
+  nextBtn.addEventListener('click', goToNextItem);
+
+  function showSetComplete(){
+    clearInterval(timerHandle);
+    const levelIdx = digitOrder.indexOf(currentDigitLevel);
+    const hasNextLevel = levelIdx < digitOrder.length - 1;
+    modalSummary.textContent = `Natapos ang Set ${currentSet} sa antas na ${digitLabels[currentDigitLevel]}. Ano ang susunod?`;
+    nextLevelBtn.style.display = hasNextLevel ? 'block' : 'none';
+    nextLevelBtn.textContent = hasNextLevel ? `Sumunod na Antas (${digitLabels[digitOrder[levelIdx+1]]})` : 'Sumunod na Antas';
+    modal.classList.add('show');
+  }
+
+  anotherSetBtn.addEventListener('click', ()=>{
+    modal.classList.remove('show');
+    currentSet += 1;
+    itemIndex = 0;
+    currentSetProblems = buildSetProblems();
+    loadItem();
+  });
+
+  nextLevelBtn.addEventListener('click', ()=>{
+    const levelIdx = digitOrder.indexOf(currentDigitLevel);
+    if(levelIdx < digitOrder.length - 1){
+      currentDigitLevel = digitOrder[levelIdx+1];
+    }
+    modal.classList.remove('show');
+    currentSet += 1;
+    itemIndex = 0;
+    currentSetProblems = buildSetProblems();
+    loadItem();
+  });
+
+  function backToSettings(){
+    clearInterval(timerHandle);
+    clearTimeout(autoAdvanceHandle);
+    modal.classList.remove('show');
+    drillScreen.classList.remove('active');
+    settingsPanel.style.display = 'block';
+    updateHeaderStatus('Handa na');
+  }
+
+  backBtn.addEventListener('click', backToSettings);
+
+  endBtn.addEventListener('click', ()=>{
+    modal.classList.remove('show');
+    clearInterval(timerHandle);
+    clearTimeout(autoAdvanceHandle);
+    drillScreen.classList.remove('active');
+    settingsPanel.style.display = 'block';
+    updateHeaderStatus('Tapos na');
+  });
+
+  landingStartBtn.addEventListener('click', ()=>{
+    logAppOpen();
+    landingPage.style.display = 'none';
+    settingsPanel.style.display = 'block';
+  });
+
+  startBtn.addEventListener('click', startDrillFlow);
+
+})();
+</script>
+</body>
+</html>
